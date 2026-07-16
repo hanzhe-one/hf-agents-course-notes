@@ -1,39 +1,31 @@
 """
-firstAgent.py — 最小可跑的 SmolAgents CodeAgent + @tool
-Minimal runnable SmolAgents CodeAgent with a @tool.
+firstAgent.py — 第一个 CodeAgent（对齐 HF Agents Course · Unit 2 · smolagents）
+First CodeAgent, aligned with HF Agents Course · Unit 2 · smolagents.
 
-重新实现自 Hugging Face Agents Course 官方教程（Unit 2 · SmolAgents）：
-Re-implemented from the HF Agents Course official tutorials (Unit 2 · SmolAgents):
-https://huggingface.co/learn/agents-course
+课程出处 / Source: https://huggingface.co/learn/agents-course
 
-需要：pip install smolagents
-运行前在根目录 .env 配置：HUGGINGFACEHUB_API_TOKEN=hf_xxx
-（也可设置 model_id 指向你有权限的模型）
+课程的 Alfred 派对示例：用一个搜索工具让 CodeAgent 规划派对。
+模型用 HF serverless Inference（InferenceClientModel），无需本地 ollama。
+pip install "smolagents[toolkit]"
+Run 前在根目录 .env 配置：HUGGINGFACEHUB_API_TOKEN=hf_xxx
 """
 
 import os
 from dotenv import load_dotenv
-from smolagents import CodeAgent, tool, InferenceClientModel
+from smolagents import CodeAgent, DuckDuckGoSearchTool, InferenceClientModel
 
-load_dotenv()  # 读取 .env 中的 HUGGINGFACEHUB_API_TOKEN
-
-
-@tool
-def get_weather(city: str) -> str:
-    """返回指定城市的天气。
-
-    Args:
-        city: 城市名称，如 "北京"
-    """
-    # 占位实现；真实场景可调天气 API
-    return f"晴，{city} 今天 25°C"
+load_dotenv()
 
 
 def main():
-    model = InferenceClientModel(token=os.getenv("HUGGINGFACEHUB_API_TOKEN"))
-    agent = CodeAgent(tools=[get_weather], model=model)
-    answer = agent.run("北京天气怎么样？")
-    print("Agent answer:", answer)
+    model = InferenceClientModel(
+        model_id="Qwen/Qwen2.5-Coder-32B-Instruct",
+        token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
+    )
+    agent = CodeAgent(tools=[DuckDuckGoSearchTool()], model=model)
+    agent.run(
+        "Search for the best music recommendations for a party at the Wayne's mansion."
+    )
 
 
 if __name__ == "__main__":

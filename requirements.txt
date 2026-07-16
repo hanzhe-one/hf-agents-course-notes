@@ -1,13 +1,13 @@
-# Hugging Face Agents Course — 依赖
-# 按需安装，不必全部装齐：Unit1 只需 smolagents；Unit2 按需装对应框架。
+# Hugging Face Agents Course — 依赖 / Dependencies (Unit 1–3)
+# 按需安装；examples 用到哪些就装哪些。
 
-# 基础
-python-dotenv>=1.0
-requests>=2.31
+# Unit 1 & Unit 3 (SmolAgents) + HF serverless Inference
+smolagents[toolkit]>=1.0
 huggingface-hub>=0.23
+python-dotenv>=1.0
 
-# Unit 1 & Unit 3 (SmolAgents)
-smolagents>=1.0
+# Unit 1 reAct.py 直接调 InferenceClient
+# （huggingface-hub 已包含 InferenceClient）
 
 # Unit 2 — LangGraph
 langgraph>=0.2
@@ -15,9 +15,13 @@ langchain>=0.2
 langchain-openai>=0.1
 
 # Unit 2 — LlamaIndex
-llama-index>=0.10
 llama-index-core>=0.10
 
-# 可选：本地推理 / optional local inference
-# transformers>=4.40
-# torch>=2.2
+# Unit 3 — Alfred（数据集 + 检索）
+datasets>=2.20
+langchain-core>=0.2
+langchain-community>=0.2
+
+# 可选 / optional
+# pandas>=2.0          # multiAgent.py 用到
+# duckduckgo-search     # smolagents[toolkit] 已带 DuckDuckGoSearchTool

@@ -13,13 +13,13 @@
 
 ## 关键代码与运行 / Key Code & Run
 
-- [`code/reAct.py`](code/reAct.py)：手写最小 ReAct 循环（无框架，纯逻辑演示）。
-- [`code/tool.py`](code/tool.py)：用函数定义工具的最小示例。
+- [`code/reAct.py`](code/reAct.py)：用系统提示驱动模型遵循 Thought/Action/Observation 格式，并用 `get_weather` 工具补全 Observation（对齐课程 Dummy Agent 一节，模型用 HF InferenceClient）。
+- [`code/tool.py`](code/tool.py)：工具的两种定义方式——`@tool` 装饰器与手写 `Tool` 类（`to_string()` 生成可注入系统提示的描述）。
 
-运行：
+运行（`reAct.py` 需 `pip install huggingface-hub python-dotenv` 并配置 token）：
 ```bash
-python code/reAct.py
 python code/tool.py
+python code/reAct.py
 ```
 
 ## 踩坑 / 感悟 / Takeaways

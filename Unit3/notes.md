@@ -11,10 +11,10 @@
 
 ## 关键代码与运行 / Key Code & Run
 
-- [`code/smolagents_alfred.py`](code/smolagents_alfred.py)：基于 SmolAgents 的 Alfred 风格助手最小示例（含示例数据）。
-- 示例数据：[`code/data/invitees.jsonl`](code/data/invitees.jsonl)
+- [`code/smolagents_alfred.py`](code/smolagents_alfred.py)：端到端 Alfred 助手——把 **BM25 嘉宾信息检索**（`GuestInfoRetrieverTool`）、**网页搜索**（`DuckDuckGoSearchTool`）、**天气工具**（`@tool` 包装搜索）组合进一个 `CodeAgent`，并用 `instructions` 约束输出格式。
+- 示例数据：[`code/data/invitees.jsonl`](code/data/invitees.jsonl)（课程字段：name/relation/description/email）。
 
-运行（需 `pip install smolagents` 并配置 token）：
+运行（需 `pip install "smolagents[toolkit]" datasets langchain-core langchain-community` 并配置 token）：
 ```bash
 python code/smolagents_alfred.py
 ```

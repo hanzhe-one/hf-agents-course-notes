@@ -1,55 +1,73 @@
 """
-tool.py — 用函数定义"工具"的最小示例
-Minimal example of defining tools as functions.
+tool.py — 工具的两种定义方式（对齐 HF Agents Course · Unit 1）
+Two ways to define a Tool, aligned with HF Agents Course · Unit 1.
 
-重新实现自 Hugging Face Agents Course 官方教程（Unit 1）：
-Re-implemented from the HF Agents Course official tutorials (Unit 1):
-https://huggingface.co/learn/agents-course
+课程出处 / Source: https://huggingface.co/learn/agents-course
 
-课程中常用 @tool 装饰器（smolagents）或 Pydantic/函数 schema（LangChain）
-来描述工具的"名称 + 描述 + 参数"。这里用手写 schema 演示核心思想，
-不依赖任何框架，便于理解工具是如何被 Agent 发现和调用的。
+包含两部分（与课程一致）：
+1) smolagents 的 @tool 装饰器：最简单的工具定义。
+2) 手写 Tool 类：理解一个工具的"名称/描述/参数/输出"元信息如何拼成
+   可注入到系统提示里的字符串（course 中的 Tool 抽象）。
+pip install smolagents
 """
 
-import math
+from smolagents import tool
 
 
-def make_tool(name, description, func, arg_name):
-    """把普通函数包装成带元信息的 tool 字典。
+@tool
+def calculator(a: int, b: int) -> int:
+    """两数相乘的工具。
 
-    Wrap a plain function with metadata so an agent can discover & call it.
+    Args:
+        a: 第一个整数
+        b: 第二个整数
     """
-    return {
-        "name": name,
-        "description": description,
-        "arg_name": arg_name,
-        "func": func,
-    }
+    return a * b
 
 
-# 定义两个工具（用 lambda 包一层，统一支持按名传参）
-TOOLS = [
-    make_tool(
-        "square_root",
-        "返回一个数的平方根",
-        lambda x: math.sqrt(x),
-        "x",
-    ),
-    make_tool(
-        "add",
-        "返回两个数之和",
-        lambda a, b: a + b,
-        "a",  # 简化：仅演示单参数入口
-    ),
-]
+class Tool:
+    """表示一段可复用代码（工具）。
+
+    Attributes:
+        name: 工具名称
+        description: 工具功能描述
+        func: 被包装的可调用对象
+        arguments: 参数列表 [(name, type), ...]
+        outputs: 返回类型
+    """
+
+    def __init__(self, name, description, func, arguments, outputs):
+        self.name = name
+        self.description = description
+        self.func = func
+        self.arguments = arguments
+        self.outputs = outputs
+
+    def to_string(self) -> str:
+        """返回工具的字符串描述（可注入系统提示）。"""
+        args_str = ", ".join(
+            f"{arg_name}: {arg_type}" for arg_name, arg_type in self.arguments
+        )
+        return (
+            f"Tool Name: {self.name},"
+            f" Description: {self.description},"
+            f" Arguments: {args_str},"
+            f" Outputs: {self.outputs}"
+        )
+
+    def __call__(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
 
 
-def call_tool(tool, **kwargs):
-    return tool["func"](**kwargs)
+calculator_tool = Tool(
+    "calculator",
+    "Multiply two integers.",
+    calculator,
+    [("a", "int"), ("b", "int")],
+    "int",
+)
 
 
 if __name__ == "__main__":
-    for t in TOOLS:
-        print(f"- {t['name']}: {t['description']}")
-    print("\nsquare_root(9) =", call_tool(TOOLS[0], x=9))
-    print("add(2, 3)      =", call_tool(TOOLS[1], a=2, b=3))
+    print(calculator_tool.to_string())
+    print("calculator(6, 7) =", calculator_tool(6, 7))

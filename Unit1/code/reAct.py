@@ -1,76 +1,71 @@
 """
-reAct.py — 最小可跑的 ReAct（Reasoning + Acting）循环演示
-Minimal hand-written ReAct loop demo.
+reAct.py — ReAct 提示驱动的 Agent（对齐 HF Agents Course · Unit 1）
+ReAct prompting demo, aligned with HF Agents Course · Unit 1.
 
-重新实现自 Hugging Face Agents Course 官方教程（Unit 1）：
-Re-implemented from the HF Agents Course official tutorials (Unit 1):
-https://huggingface.co/learn/agents-course
+课程出处 / Source: https://huggingface.co/learn/agents-course
 
-说明 / Notes:
-- 为演示清晰，这里用一个"假模型" mock_model 来代替真实 LLM 调用，
-  避免依赖 API token。把 mock_model 换成真实 LLM 调用即可对接课程示例。
-- A fake model stands in for a real LLM so this runs with no API token.
-  Swap `mock_model` for a real LLM call to match the course example.
+改动说明 / Change vs. course:
+- 课程 Dummy Agent 一节用 serverless Inference API 驱动一个遵循
+  Thought/Action/Observation 格式的系统提示。这里保持同样的思路，
+  用 huggingface_hub.InferenceClient（需要 HF token）替代本地 ollama。
+- Run 前在根目录 .env 配置：HUGGINGFACEHUB_API_TOKEN=hf_xxx
+- pip install huggingface-hub python-dotenv
 """
 
-# 一个示例"工具"：根据城市返回天气（占位实现）
-TOOLS = {
-    "get_weather": lambda city: f"晴，{city} 今天 25°C",
-}
+import os
+from dotenv import load_dotenv
+from huggingface_hub import InferenceClient
+
+load_dotenv()
+
+# 与课程一致：一段驱动 ReAct 格式的系统提示
+SYSTEM_PROMPT = """你是一个可以调用外部工具的聪明助手。
+为了解决用户的问题，你可以使用以下工具：
+- get_weather: 获取指定城市当前的天气情况。输入应为城市名，比如 "London"。
+
+你必须严格遵循以下格式进行思考和输出：
+Thought: 你需要思考接下来做什么
+Action: 决定使用的工具名称（必须是 get_weather）
+Action Input: 传给该工具的具体参数
+Observation: 工具返回的客观结果
+...（以上步骤可循环多次）
+Thought: 我现在已经知道最终答案
+Final Answer: 对用户问题的最终回答
+"""
 
 
-def mock_model(prompt: str) -> str:
-    """模拟 LLM：根据提示返回 Thought/Action 文本。
-
-    A stand-in for an LLM that returns Thought/Action text.
-    In the real course this is an actual chat-completion call.
-
-    注：这里用 ASCII 触发词 "weather" 而非中文，避免 Windows 控制台
-    GBK 编码导致的中文比较失败（真实课程里模型输出是结构化的，
-    不会有此问题）。
-    演示逻辑：首轮看到 weather 触发词 -> 返回 Action；当 prompt 中
-    已包含 "Observation:"（说明已经过一轮工具调用）-> 返回 Final Answer，
-    从而完整演示「思考->行动->观察->结束」闭环。
-    """
-    if "Observation:" in prompt:
-        return "Thought: I have the weather now.\nFinal Answer: It is sunny, 25C in Beijing."
-    if "weather" in prompt.lower():
-        return 'Thought: I need the weather.\nAction: get_weather["Beijing"]'
-    return "Thought: I have enough info.\nFinal Answer: Done."
+def get_weather(location: str) -> str:
+    """模拟一个调用外部天气 API 的工具。"""
+    if "London" in location or "伦敦" in location:
+        return "12°C, 阴天，有阵雨 (Rainy)"
+    return "25°C, 晴朗"
 
 
-def parse_action(text: str):
-    """从模型输出中解析 Action: tool["arg"]。"""
-    for line in text.splitlines():
-        if line.strip().startswith("Action:"):
-            body = line.split("Action:", 1)[1].strip()
-            name, arg = body.split("[", 1)
-            arg = arg.rstrip("]").strip('"')
-            return name.strip(), arg
-    return None, None
+def main():
+    client = InferenceClient(
+        model="Qwen/Qwen2.5-Coder-32B-Instruct",
+        token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
+    )
 
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": "What's the weather in London?"},
+    ]
 
-def react_loop(question: str, max_steps: int = 5):
-    """ReAct 主循环：Thought -> Action -> Observation，直到 Final Answer。"""
-    print(f"Question: {question}\n")
-    prompt = question
-    for step in range(1, max_steps + 1):
-        out = mock_model(prompt)
-        print(f"--- Step {step} ---\n{out}\n")
+    # 第一次调用：让模型产生 Thought/Action（在 Observation 处停止）
+    completion = client.chat_completion(messages, max_tokens=500, stop=["Observation:"])
+    output = completion.choices[0].message.content
+    print(output)
 
-        if "Final Answer:" in out:
-            return out.split("Final Answer:", 1)[1].strip()
+    # 把工具执行结果作为 Observation 拼回，再让模型给出 Final Answer
+    observation = get_weather("London")
+    messages.append({"role": "assistant", "content": output})
+    messages.append({"role": "user", "content": f"Observation: {observation}"})
 
-        name, arg = parse_action(out)
-        if name in TOOLS:
-            obs = TOOLS[name](arg)
-            print(f"Observation: {obs}\n")
-            prompt = f"{out}\nObservation: {obs}\n"
-        else:
-            print("Observation: 未找到对应工具。\n")
-    return "（达到最大步数，未得出最终答案）"
+    completion = client.chat_completion(messages, max_tokens=500)
+    print("Observation:", observation)
+    print(completion.choices[0].message.content)
 
 
 if __name__ == "__main__":
-    answer = react_loop("What is the weather today?")
-    print(f"Answer: {answer}")
+    main()
