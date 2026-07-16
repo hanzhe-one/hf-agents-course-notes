@@ -1,0 +1,23 @@
+# Hugging Face Agents Course — 依赖
+# 按需安装，不必全部装齐：Unit1 只需 smolagents；Unit2 按需装对应框架。
+
+# 基础
+python-dotenv>=1.0
+requests>=2.31
+huggingface-hub>=0.23
+
+# Unit 1 & Unit 3 (SmolAgents)
+smolagents>=1.0
+
+# Unit 2 — LangGraph
+langgraph>=0.2
+langchain>=0.2
+langchain-openai>=0.1
+
+# Unit 2 — LlamaIndex
+llama-index>=0.10
+llama-index-core>=0.10
+
+# 可选：本地推理 / optional local inference
+# transformers>=4.40
+# torch>=2.2

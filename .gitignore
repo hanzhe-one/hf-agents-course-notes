@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.pytest_cache/
+.venv/
+venv/
+
+# Environment / secrets
+.env
+*.env
+.env.*
+!.env.example
+
+# Hugging Face / model caches
+.hf_cache/
+.cache/
+*.bin
+*.safetensors
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Data (keep small sample data, ignore large dumps)
+Unit3/code/data/*.cache
