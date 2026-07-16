@@ -17,7 +17,8 @@
 - **工具定义**：三者都支持函数式工具，但装饰器/约定不同（`@tool` vs Pydantic vs function tool）。
 - **状态管理**：LangGraph 用 `State` 显式传递；SmolAgents 内部维护记忆；LlamaIndex 用 `Context`。
 
-> TODO: 用一个相同任务（如"查天气并写邮件"）分别用三框架实现，对比代码量与可控性。
+- 上手成本：SmolAgents 最轻（几行出 Agent），LangGraph 要理解图/状态/边，LlamaIndex 概念最多（Index/Retriever/Workflow/Context）。
+- 跨框架通用坑：①工具描述（docstring）决定模型选不选得对；②`pip install` 的包名和导入名常不一致（如 `llama-index` vs `llama_index`）；③本地课程示例多用规则/离线，跑通后再接真实 LLM。
 
 ## 参考 / References
 

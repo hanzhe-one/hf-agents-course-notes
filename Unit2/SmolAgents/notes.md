@@ -24,7 +24,12 @@ python code/toolClass.py
 
 ## 踩坑 / 感悟 / Takeaways
 
-> TODO: 记录 CodeAgent 相比 JSON-action Agent 的优势；`additional_authorized_imports` 的作用（为何 multiAgent 要显式开 pandas）；代码执行安全；token 配置。
+- **`@tool` 的 docstring + 类型注解就是 schema**：工具名来自函数名，描述来自 docstring，参数类型来自注解。描述写不清，模型就容易选错工具或传错参——比框架本身更容易出错的是"工具描述"。
+- **`additional_authorized_imports` 不开就报错**：像 `multiAgent.py` 要让模型输出 pandas DataFrame，必须显式 `additional_authorized_imports=["pandas"]`。SmolAgents 默认只允许安全的内置，未授权的 import 会被执行器拒绝。
+- **`CodeAgent` 比 JSON-action `ToolCallingAgent` 更灵活**：CodeAgent 让模型直接写 Python（能写循环、调 pandas），ToolCallingAgent 只输出工具调用的 JSON。课程默认用 CodeAgent。
+- **`InferenceClientModel` 的 token**：从环境变量 `HUGGINGFACEHUB_API_TOKEN` 读，或显式传 `token=`。serverless 模型有速率限制，跑长任务容易触限，需要控制 `max_steps`。
+- **代码执行安全**：CodeAgent 会真跑模型生成的代码，`additional_authorized_imports` 是在"能力"和"安全"之间权衡的开关，别为了省事开成 `*`。
+- **`code_block_tags="markdown"`**：让模型用 ` ```python ` 包裹代码块，解析更稳（Unit3 alfred 用到）。
 
 ## 参考 / References
 
