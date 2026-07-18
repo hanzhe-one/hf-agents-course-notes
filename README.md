@@ -2,9 +2,9 @@
 
 > HF Agents Course — Notes & Minimal Examples
 
-这是我学习 [Hugging Face Agents Course](https://huggingface.co/learn/agents-course) 前三单元（Unit 1–3）时整理的笔记与示例代码集合。仓库用于**个人总结与分享展示**。
+这是我学习 [Hugging Face Agents Course](https://huggingface.co/learn/agents-course) 全部四个单元（Unit 1–4）时整理的笔记与示例代码集合。仓库用于**个人总结与分享展示**。
 
-This repo collects my notes and runnable examples from the first three units (Unit 1–3) of the [Hugging Face Agents Course](https://huggingface.co/learn/agents-course). It serves as both a personal study log and a shareable showcase.
+This repo collects my notes and runnable examples from the four units (Unit 1–4) of the [Hugging Face Agents Course](https://huggingface.co/learn/agents-course). It serves as both a personal study log and a shareable showcase.
 
 ---
 
@@ -15,7 +15,7 @@ This repo collects my notes and runnable examples from the first three units (Un
 | **Unit 1** | Agent 基础 / Agent Fundamentals | [Unit1/notes.md](Unit1/notes.md) | ReAct 提示、工具定义（`@tool` 与 `Tool` 类） |
 | **Unit 2** | 三大框架 / Three Frameworks | [Unit2/notes.md](Unit2/notes.md) | LangGraph · LlamaIndex · SmolAgents |
 | **Unit 3** | 综合应用 / Applied Agents | [Unit3/notes.md](Unit3/notes.md) | 端到端 Alfred 助手（检索+搜索+天气） |
-| Unit 4 | 待续 / Coming soon | [Unit4/](Unit4/) | 学习中，敬请期待 |
+| Unit 4 | 期末项目 / Final Project | [Unit4/](Unit4/) | ✅ 30%（证书已取得） |
 
 ### Unit 2 框架细分 / Unit 2 Frameworks
 
@@ -43,7 +43,7 @@ hf-agents-course-notes/
 │   ├── LlamaIndex/code/workflow.py         # 最小 Workflow
 │   └── SmolAgents/code/{firstAgent,multiAgent,toolClass}.py
 ├── Unit3/{notes.md, code/smolagents_alfred.py, code/data/invitees.jsonl}
-└── Unit4/                                   # 预留 placeholder
+└── Unit4/{notes.md, code/}                  # GAIA 子集评测（30% 证书线）
 ```
 
 ---
